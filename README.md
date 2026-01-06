@@ -1,4 +1,4 @@
-# Fake Job Posting Detection — End-to-End Machine Learning & NLP Project
+# Fake Job Posting Detection Using Machine Learning and Natural Language Processing
 
 This project builds a complete fraud-detection pipeline to classify job postings as *legitimate* or *fraudulent* using exploratory data analysis, interpretable feature engineering, and multiple machine learning models.  
 The objective is to understand behavioural patterns of fraudulent job ads and develop an imbalance-aware detection system suitable for real-world screening and deployment.
