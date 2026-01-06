@@ -1,104 +1,86 @@
-# Fake Job Posting Detection — End-to-End Machine Learning & Deep Learning Project
+# Fake Job Posting Detection — End-to-End Machine Learning & NLP Project
 
-This project builds a complete fraud-detection pipeline to classify job postings as *real* or *fake* using a combination of exploratory data analysis, advanced feature engineering, machine learning models, and deep learning architectures.  
-The objective is to understand the behavioural patterns of fraudulent job ads and create a reliable detection system suitable for real-world deployment.
+This project builds a complete fraud-detection pipeline to classify job postings as *legitimate* or *fraudulent* using exploratory data analysis, interpretable feature engineering, and multiple machine learning models.  
+The objective is to understand behavioural patterns of fraudulent job ads and develop an imbalance-aware detection system suitable for real-world screening and deployment.
 
 ---
 
-##  Project Pipeline
+## Project Pipeline
 
 ### 1. Exploratory Data Analysis (EDA)
-A comprehensive EDA was conducted to understand dataset structure, missing values, correlations, and major categorical distributions.  
+A comprehensive EDA was conducted to understand dataset structure, class imbalance, missingness patterns, and key text differences between legitimate and fraudulent postings.  
 Key insights:
-- Dataset is **highly imbalanced** — fake job posts represent a small fraction.
-- Columns such as **employment_type**, **required_experience**, **industry**, and **function** hold a major share of the dataset’s information.
-- Text fields like **description**, **requirements**, and **benefits** carry strong fraud-detection signals.
+- The dataset is **highly imbalanced** — fraudulent postings represent a small minority (~4.8%).
+- Missingness is **class-informative** (fraudulent postings show systematically higher missing fields).
+- Text fields such as **description**, **company_profile**, **requirements**, and **benefits** contain strong discrimination signals through length, richness, and completeness patterns.
 
-Multiple visualisations (distribution plots, wordclouds, imbalance plots, correlation heatmaps) were used to uncover actionable patterns.
+Visualisations used include class distribution plots, missingness by class heatmaps, text length/richness plots, feature correlation heatmaps, and precision–recall curves.
 
 ---
 
-##  Feature Engineering
+## Feature Engineering
 
-A structured and multi-stage feature engineering pipeline was developed:
+A structured and multi-stage feature engineering pipeline was developed to capture both structural and linguistic fraud signals:
 
-- **Text Preprocessing:**  
-  Lowercasing, tokenisation, stopword removal, lemmatisation.
-  
+- **Text Cleaning:**  
+  Lowercasing, punctuation/whitespace normalisation, and safe token cleaning (without introducing leakage).
+
 - **Vectorisation:**  
-  TF-IDF, word/character count features, and n-gram based signals.
+  TF-IDF representation for unstructured text (sparse high-dimensional features).
 
-- **Categorical Encodings:**  
-  Label Encoding + One-Hot Encoding for structured data.
+- **Interpretable Engineered Features:**  
+  - Text length and richness metrics (word counts, richness score)
+  - Structural missingness counts (missing key fields as signals)
+  - Scam keyword indicators (lexicon-based)
+  - Skill emphasis features (soft vs technical signal ratios)
+  - Writing-style indicators (e.g., punctuation patterns where applicable)
 
-- **Balancing Technique:**  
-  SMOTE was used to counter class imbalance and improve recall on the fake class.
-
-- **Final Feature Matrix:**  
-  Combined structured variables + engineered text features for ML models,  
-  and separate clean textual sequences for LSTM/BiLSTM models.
+- **Final Feature Space:**  
+  Combined TF-IDF features + engineered numerical features for hybrid models, enabling both lexical modelling and interpretable behavioural pattern capture.
 
 ---
 
-##  Machine Learning & Deep Learning Models
+## Machine Learning Models
 
-Multiple models were trained and compared to understand which algorithms best capture fraud-related patterns.
+Multiple models were trained and compared under an imbalanced classification setting.
 
-### Machine Learning Models
-- Logistic Regression  
-- Random Forest  
-- Gradient Boosting  
-- XGBoost  
-- LightGBM  
-- CatBoost  
-- SVM (TF-IDF Based)
+### Final Thesis Models (Locked)
+- Gradient Boosting (GBM) — weak baseline
+- SVM (TF-IDF + engineered features) — recall-oriented behaviour
+- LightGBM — balanced performance model
+- XGBoost — high-precision benchmark
 
-### Deep Learning Models
-- Artificial Neural Network (ANN)  
-- **BiLSTM (Description-Only)** — strongest text-based model
-
-### Hyperparameter Tuning
-- GridSearchCV and RandomizedSearchCV for ML models  
-- Learning rate, dropout, batch size, and epoch tuning for neural networks  
-- Model selection based on F1-Score (Fake class)
+### Evaluation Design (Imbalance-Aware)
+- Stratified train/test split
+- Fraud-focused metrics:
+  - Precision (fraud class)
+  - Recall (fraud class)
+  - F1-score (fraud class)
+  - PR-AUC (Precision–Recall AUC)
+- Precision–Recall curves for threshold-independent comparison
+- Decision-threshold tuning to support deployment trade-offs
 
 ---
 
 ## Results & Evaluation
 
-Below is the performance comparison of all models (values taken from your project):
+Below is the comparative performance of the final models (fraud-class metrics reported):
 
-### **Model Performance Heatmap**
-
-> *(This table corresponds to the heatmap image in your project)*
-
-| Model                       | Accuracy   | Precision (Fake) | Recall (Fake) | F1-Score (Fake) |
-|----------------------------|------------|-------------------|----------------|------------------|
-| **BiLSTM (Description Only)** | **0.974832** | 0.798561          | 0.641618       | 0.711538         |
-| **XGBoost**                 | 0.972875   | 0.756757          | 0.647399       | 0.697819         |
-| **LightGBM**                | 0.972595   | 0.721893          | 0.705202       | 0.713450         |
-| SVM + TF-IDF                | 0.969239   | 0.652174          | **0.780347**   | 0.710526         |
-| Random Forest               | 0.966723   | **0.982143**       | 0.317919       | 0.480349         |
-| Gradient Boosting           | 0.965045   | 0.875000          | 0.323699       | 0.472574         |
-| CatBoost                    | 0.958613   | 0.557604          | 0.699422       | 0.620513         |
+| Model | Accuracy | Precision (Fraud) | Recall (Fraud) | F1-Score (Fraud) | PR-AUC |
+|------|----------:|------------------:|---------------:|-----------------:|------:|
+| LightGBM — Balanced Performance | 0.973154 | 0.751634 | 0.664740 | 0.705521 | 0.793270 |
+| XGBoost — High Precision Benchmark | 0.965884 | 0.629442 | 0.716763 | 0.670270 | 0.770293 |
+| SVM (TF-IDF + Engineered) — Recall-Oriented | 0.974553 | 0.988095 | 0.479769 | 0.645914 | 0.779714 |
+| Gradient Boosting (GBM) — Weak Baseline | 0.963087 | 0.872727 | 0.277457 | 0.421053 | 0.616447 |
 
 ---
 
 ### Interpretation
 
-- **BiLSTM (Description-Only)** achieved the **highest overall accuracy** and one of the strongest F1-scores, showing its ability to extract rich semantic information from job descriptions.
-  
-- **XGBoost** showed the **best balance of precision + recall** among machine learning models, making it highly reliable for fraud detection in structured + text-engineered features.
-
-- **LightGBM** also performed exceptionally well with stable recall and F1.
-
-- **SVM + TF-IDF** achieved the **highest recall**, meaning it caught the most fake job posts — important in fraud detection scenarios.
-
-- **Random Forest and Gradient Boosting** showed inflated precision but extremely low recall (i.e., they missed many fraudulent cases), making them unsuitable for this task.
-
-**Final Recommended Models:**  
-✔ **BiLSTM (text-based deep learning)**  
-✔ **XGBoost (structured + text features)**
+- LightGBM achieved the strongest overall balance between precision and recall, yielding the best fraud F1-score and PR-AUC.
+- XGBoost produced stronger precision-oriented behaviour (useful when false positives are costly), while maintaining competitive recall.
+- SVM showed recall-oriented behaviour depending on threshold choice and was useful for high-risk screening scenarios where missing fraud is costly.
+- GBM served as a weak baseline, illustrating how accuracy can be misleading under severe imbalance.
 
 ---
 
@@ -108,9 +90,14 @@ Below is the performance comparison of all models (values taken from your projec
 - Pandas, NumPy  
 - Matplotlib, Seaborn  
 - Scikit-learn  
-- XGBoost, LightGBM, CatBoost  
-- TensorFlow / Keras  
-- NLTK / spaCy  
+- XGBoost, LightGBM  
+
+---
+
+## Repository Files
+
+- `fake job postings project.ipynb` — main end-to-end notebook (EDA → features → modelling → evaluation)
+- `Data Science Project Report.pdf` — final MSc project report
 
 ---
 
@@ -119,4 +106,4 @@ Below is the performance comparison of all models (values taken from your projec
 ```bash
 pip install -r requirements.txt
 jupyter notebook
-# Open: '1. EDA, Feature Engineering And Model Building.ipynb'
+# Open: 'fake job postings project.ipynb'
